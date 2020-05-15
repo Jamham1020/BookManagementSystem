@@ -1,3 +1,15 @@
+/**
+ * Filename: util.h
+ *
+ * Description: utility header declaration. utility provides various useful function
+ *  so that the system handles the data easily.
+ *
+ * Authors: Janet Pham, Yong Gyun Kim, Erika Meza, Marwa Naghmouchi, Vernon Neilly
+ *
+ * Class: COMPSCI-1
+ *
+ * Date: May 15, 2020
+ */
 #pragma once
 #include <string>
 

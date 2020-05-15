@@ -1,3 +1,14 @@
+/**
+ * Filename: util.cpp
+ *
+ * Description: utility functions implementation.
+ *
+ * Authors: Janet Pham, Yong Gyun Kim, Erika Meza, Marwa Naghmouchi, Vernon Neilly
+ *
+ * Class: COMPSCI-1
+ *
+ * Date: May 15, 2020
+ */
 #include <iostream>
 #include <string>
 #include <thread>
