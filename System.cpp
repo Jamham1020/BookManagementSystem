@@ -20,6 +20,7 @@
 using namespace std;
 
 const char SEPARATOR = '|';
+const int FIELDS_COUNT = 6;
 const string FILE_HEADER = "ISBN|Author|Title|Quantity|Price|Notes";
 
 /**
@@ -112,6 +113,11 @@ bool System::LoadFile(string filepath)
       if (!rowStream && cell.empty())
       {
         bookData.push_back("");
+      }
+
+      // consider the row as corrupted
+      if (bookData.size() < FIELDS_COUNT) {
+        continue;
       }
 
       quantity = static_cast<int>(stoi(bookData.at(3)));
