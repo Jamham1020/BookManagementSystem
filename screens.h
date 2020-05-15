@@ -13,6 +13,15 @@
 #include "System.h"
 
 /**
+ * Print program information
+ * 
+ * Print the program name at the beginning of the program.
+ *
+ * @return void
+ */
+void PrintProgramInfo();
+
+/**
  * Load Inventory Screen
  * 
  * Load book list from the given file name. The default file name is
