@@ -111,6 +111,8 @@ void ShowBookList(System &system)
     return;
   }
 
+  ClearScreen();
+
   // Print header of the table
   cout << TABLE_ROW_SEPARTOR << endl;
 
@@ -201,6 +203,7 @@ void UpdateBook(System &system)
     }
   } while (cin.fail() || (idx == -1));
 
+  ClearScreen();
   PrintBook(system.books[idx]);
 
   do
