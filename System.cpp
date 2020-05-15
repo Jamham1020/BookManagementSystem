@@ -141,6 +141,8 @@ bool System::LoadFile(string filepath)
     return false;
   }
 
+  inFile.close();
+
   if (validated == false)
   {
     return false;
