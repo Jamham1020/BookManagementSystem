@@ -147,7 +147,7 @@ bool System::LoadFile(string filepath)
 
   books = newBooks;
   currentFilePath = filepath;
-  cout << books.size() << " books loaded." << endl;
+  cout << books.size() << " books loaded from " << filepath << "." << endl;
   return true;
 }
 
