@@ -23,19 +23,17 @@ using namespace std;
 int main()
 {
   System system;
+  int choice;
+
+  // Print program information as a title of the program
+  PrintProgramInfo();
 
   // if the program loads the default file
   system.LoadFile();
 
-  int choice;
-
-  // if you guys want, we can change the title to something else.
-  // I really don't have the creativity to think of a cool name right now.
-  cout << "****** Chaffey Library/BookStore Management System ******" << endl
-       << endl;
-
   do
   {
+    cout << endl << "Select options" << endl;
     cout << "  1: Read inventory from file" << endl;
     cout << "  2: Display Library" << endl;
     cout << "  3: Update an entry" << endl;
@@ -47,6 +45,13 @@ int main()
 
     cout << endl
          << "Enter your choice: ";
+    
+    // If the input stream has a failed status, clean up for preventing
+    // infinity loop.
+    if (cin.fail()) {
+      ClearInput();
+    }
+
     cin >> choice;
 
     switch (choice)
@@ -74,7 +79,7 @@ int main()
       cout << "Thank you and have a nice day!" << endl;
       break;
     default:
-      cout << "Invalid choice!" << endl;
+      cout << endl << "Invalid choice!" << endl;
     }
     cout << endl;
   } while (choice != 7);

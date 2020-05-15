@@ -20,6 +20,12 @@
 using namespace std;
 
 /**
+ * Program Display
+ */
+const string PROGRAM_TITLE = "   Chaffey Book Management System   ";
+const string PROGRAM_TITLE_BORDER = string(PROGRAM_TITLE.size(), '=');
+
+/**
  * Table display related constraints
  */
 const string TABLE_CELL_SEPARATOR = " | ";
@@ -32,6 +38,20 @@ const int TABLE_WIDTH_PRICE = 10;
 const int TABLE_WIDTH_NOTES = 20;
 const int TABLE_WIDTH = (TABLE_CELL_SEPARATOR.length() * 8) + TABLE_WIDTH_NO + TABLE_WIDTH_ISBN + TABLE_WIDTH_AUTHOR + TABLE_WIDTH_TITLE + TABLE_WIDTH_QTY + TABLE_WIDTH_PRICE + TABLE_WIDTH_NOTES;
 const string TABLE_ROW_SEPARTOR = string(TABLE_WIDTH, '-');
+
+
+/**
+ * Print Program Info Implementation
+ */
+void PrintProgramInfo()
+{
+  // Print the title of the program
+  cout << PROGRAM_TITLE_BORDER << endl
+       << PROGRAM_TITLE << endl
+       << PROGRAM_TITLE_BORDER << endl
+       << endl;
+  return;
+}
 
 /**
  * Load Inventory Screen Implementation
