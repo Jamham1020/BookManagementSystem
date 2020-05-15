@@ -98,23 +98,6 @@ void DeleteBook(System &system);
 void SaveAndQuit(System &system);
 
 /**
- * Truncate the string by given width
- * 
- * @param str given string
- * @param width substring of the length
- * @return string if the string is longer than the given width, it
- *  returns with ellipses.
- */
-string truncate(string str, int width);
-
-/**
- * Clear Input for cin stream and getline
- *
- * @return void
- */
-void ClearInput();
-
-/**
  * Print book information
  * 
  * Display detail of the given book on the screen.

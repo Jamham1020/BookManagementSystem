@@ -15,6 +15,7 @@
 #include <thread>
 #include <iomanip>
 #include "book.h"
+#include "util.h"
 #include "screens.h"
 
 using namespace std;
@@ -455,38 +456,6 @@ void SaveAndQuit(System &system)
 {
   system.SaveFile();
   cout << "You have successfully saved all the data into the library." << endl;
-  return;
-}
-
-/**
- * Truncate the string by given width
- * 
- * @param str given string
- * @param width substring of the length
- * @return string if the string is longer than the given width, it returns with ellipses.
- */
-string truncate(string str, int width)
-{
-  if (str.length() > width)
-  {
-    return str.substr(0, width - 3) + "...";
-  }
-  else
-  {
-    return str;
-  }
-}
-
-/**
- * Clear Input for cin stream and getline
- *
- * @return void
- */
-void ClearInput()
-{
-  // reference: https://en.cppreference.com/w/cpp/io/basic_istream/ignore
-  cin.clear();
-  cin.ignore(numeric_limits<streamsize>::max(), '\n');
   return;
 }
 
