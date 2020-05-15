@@ -1,212 +1,449 @@
+/**
+ * Filename: screens.cpp
+ *
+ * Description: Screen implementation for each options of the system.
+ *
+ * Authors: Janet Pham, Yong Gyun Kim, Erika Meza, Marwa Naghmouchi, Vernon Neilly
+ *
+ * Class: COMPSCI-1
+ *
+ * Date: May 14, 2020
+ */
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <thread>
 #include <iomanip>
 #include "book.h"
 #include "screens.h"
 
 using namespace std;
 
-// choice 1: read the files
-void choice1(book books[], int &size, int MAX_SIZE)
+/**
+ * Table display related constraints
+ */
+const string TABLE_CELL_SEPARATOR = " | ";
+const int TABLE_WIDTH_NO = 3;
+const int TABLE_WIDTH_ISBN = 15;
+const int TABLE_WIDTH_AUTHOR = 16;
+const int TABLE_WIDTH_TITLE = 40;
+const int TABLE_WIDTH_QTY = 10;
+const int TABLE_WIDTH_PRICE = 10;
+const int TABLE_WIDTH_NOTES = 20;
+const int TABLE_WIDTH = (TABLE_CELL_SEPARATOR.length() * 8) + TABLE_WIDTH_NO + TABLE_WIDTH_ISBN + TABLE_WIDTH_AUTHOR + TABLE_WIDTH_TITLE + TABLE_WIDTH_QTY + TABLE_WIDTH_PRICE + TABLE_WIDTH_NOTES;
+const string TABLE_ROW_SEPARTOR = string(TABLE_WIDTH, '-');
+
+/**
+ * Load Inventory Screen Implementation
+ *
+ * @param system
+ */
+void LoadInventory(System &system)
 {
-  ifstream inFile;
-  inFile.open("library.dat"); //save data into one file
-  string str;
+  string input;
+  bool isFileValid = false;
 
-  while (inFile && size < MAX_SIZE)
+  do
   {
-    getline(inFile, str);
-    books[size].ISBN = atoi(str.c_str());
+    cout << "Type the name of inventory file (current: " << system.GetCurrentFilePath() << "): ";
+    cin.ignore();
 
-    getline(inFile, books[size].Author);
+    getline(cin, input);
 
-    getline(inFile, books[size].Title);
+    // if the input is empty, cancel the load file and back to the menu.
+    if (input == "")
+    {
+      cout << "Cancel the load. Back to the menu." << endl
+           << endl;
+      break;
+    }
 
-    getline(inFile, str);
-    books[size].Quantity = atoi(str.c_str());
+    isFileValid = system.LoadFile(input);
+    if (isFileValid == false)
+    {
+      cout << endl
+           << "The file (" << input << ") cannot find. Please check the filename." << endl;
+    }
+  } while (cin.fail() || (isFileValid == false));
 
-    getline(inFile, str);
-    books[size].price = atoi(str.c_str());
+  return;
+}
 
-    getline(inFile, str);
-    size++;
+/**
+ * Show Book List Screen Implementation
+ *
+ * @param system
+ */
+void ShowBookList(System &system)
+{
+  if (system.books.size() == 0)
+  {
+    cout << "The list is empty." << endl;
+    return;
   }
 
-  cout << "You have successfully read the file." << endl;
-  inFile.close();
-}
-// choice 2: display the library
-void choice2(book books[], int size)
-{
-  for (int i = 0; i < size; i++)
+  // Print header of the table
+  cout << TABLE_ROW_SEPARTOR << endl;
+
+  cout << left << TABLE_CELL_SEPARATOR
+       << setw(TABLE_WIDTH_NO) << "No." << TABLE_CELL_SEPARATOR
+       << setw(TABLE_WIDTH_ISBN) << "ISBN" << TABLE_CELL_SEPARATOR
+       << setw(TABLE_WIDTH_AUTHOR) << "Author" << TABLE_CELL_SEPARATOR
+       << setw(TABLE_WIDTH_TITLE) << "Title" << TABLE_CELL_SEPARATOR
+       << setw(TABLE_WIDTH_QTY) << "Qty" << TABLE_CELL_SEPARATOR
+       << setw(TABLE_WIDTH_PRICE) << "Price ($)" << TABLE_CELL_SEPARATOR
+       << setw(TABLE_WIDTH_NOTES) << "Notes" << TABLE_CELL_SEPARATOR
+       << endl;
+
+  cout << TABLE_ROW_SEPARTOR << endl;
+
+  // Print each books as a row
+  for (int i = 0; i < system.books.size(); i++)
   {
-    cout << endl;
-    cout << "Book Number: " << (i + 1) << endl;
-    cout << "ISBN: " << books[i].ISBN << endl;
-    cout << "Author: " << books[i].Author << endl;
-    cout << "Title: " << books[i].Title << endl;
-    cout << "Quantity: " << books[i].Quantity << endl;
-    cout << "Price: $" << books[i].price << endl;
-    cout << "Notes: " << books[i].notes << endl;
+    cout << TABLE_CELL_SEPARATOR
+
+         << right << setw(TABLE_WIDTH_NO) << (i + 1) << TABLE_CELL_SEPARATOR
+
+         << left << setw(TABLE_WIDTH_ISBN)
+         << truncate(system.books[i].ISBN, TABLE_WIDTH_ISBN) << TABLE_CELL_SEPARATOR
+
+         << setw(TABLE_WIDTH_AUTHOR)
+         << truncate(system.books[i].Author, TABLE_WIDTH_AUTHOR) << TABLE_CELL_SEPARATOR
+
+         << setw(TABLE_WIDTH_TITLE)
+         << truncate(system.books[i].Title, TABLE_WIDTH_TITLE) << TABLE_CELL_SEPARATOR
+
+         << right << setw(TABLE_WIDTH_QTY)
+         << system.books[i].Quantity << TABLE_CELL_SEPARATOR
+
+         << right << setw(TABLE_WIDTH_PRICE)
+         << system.books[i].Price << TABLE_CELL_SEPARATOR
+
+         << left << setw(TABLE_WIDTH_NOTES)
+         << truncate(system.books[i].Notes, TABLE_WIDTH_NOTES) << TABLE_CELL_SEPARATOR
+         << endl;
   }
 
-  if (size != 0)
-    cout << "You have successfully printed the array." << endl;
-  else
-    cout << "Array is empty. Read the file first." << endl;
+  cout << TABLE_ROW_SEPARTOR << endl;
+  cout << "Total " << system.books.size() << " books listed." << endl;
+  return;
 }
-// choice 3: Update the library entry
-void choice3(book books[], int size)
-{
-  if (size == 0)
-    cout << "There is nothing in the inventory at this time. Please enter an entry." << endl;
-  else
-  {
-    int isbn;
-    int option;
-    int qty;
-    string notes;
 
-    cout << "\nEnter the ISBN of the book: ";
+/**
+ * Update Book Screen Implementation
+ *
+ * @param system
+ */
+void UpdateBook(System &system)
+{
+  if (system.books.size() == 0)
+  {
+    cout << "The list is empty." << endl;
+    return;
+  }
+
+  string isbn;
+  int idx = -1, qty, option;
+  string notes;
+
+  do
+  {
+    ClearInput();
+    cout << "\nEnter the ISBN of the book or the book number: ";
     cin >> isbn;
 
-    cout << "1. Increment" << endl;
-    cout << "2. Decrement" << endl;
-    cout << "3. Add New Quantity" << endl;
-    cout << "4. Edit Notes" << endl;
-    cout << "Enter your option: ";
-    cin >> option;
-
-    cout << "Enter the quantity: ";
-    cin >> qty;
-
-    for (int i = 0; i < size; i++)
+    // find the book using isbn
+    for (int i = 0; i < system.books.size(); i++)
     {
-      if (books[i].ISBN == isbn)
+      if (system.books[i].ISBN == isbn)
       {
-        if (option == 1)
-          books[i].Quantity += qty;
-        else if (option == 2)
-        {
-          books[i].Quantity -= qty;
-
-          if (books[i].Quantity)
-            books[i].Quantity = 0;
-        }
-        else if (option == 3)
-          books[i].Quantity = qty;
-
-        break;
+        idx = i;
       }
     }
 
-    cout << "You have successfully updated the array." << endl;
-  }
-}
-//choice 4: Add another book for the library/ bookstore
-void choice4(book books[], int &size, int MAX_SIZE)
-{
-  if (size < MAX_SIZE)
-  {
-    string str;
-
-    cout << "\nEnter the book ISBN: ";
-    cin >> books[size].ISBN;
-
-    cout << "Enter the author name: ";
-    cin >> books[size].Author;
-
-    cout << "Enter the book title: ";
-    cin >> books[size].Title;
-    cin.get();
-    //cout << endl;
-
-    cout << "Enter the books quantity: ";
-    cin >> books[size].Quantity;
-
-    cout << "Enter the book price: $";
-    cin >> books[size].price;
-
-    cout << "Notes: ";
-    cin >> books[size].notes;
-
-    size++;
-    cout << "You have successfully inserted an entry." << endl;
-  }
-}
-// choice 5: sort the library
-void choice5(book books[], int size)
-{
-  for (int i = 1; i < size; i++)
-  {
-    book current = books[i];
-    int j = i;
-    while (j > 0 && (books[j - 1].Title).compare(current.Title) > 0)
+    // if the book is not existing, check input as book number
+    if (idx == -1)
     {
-      books[j] = books[j - 1];
-      j--;
+      idx = static_cast<int>(stoi(isbn)) - 1;
+      if (idx >= 0 && (system.books.size() <= idx))
+      {
+        idx = -1;
+      }
+    }
+  } while (cin.fail() || (idx == -1));
+
+  do
+  {
+    ClearInput();
+    cout << "  1. Increment Quantity" << endl;
+    cout << "  2. Decrement Quantity" << endl;
+    cout << "  3. Add New Quantity" << endl;
+    cout << "  4. Edit Notes" << endl
+         << endl;
+
+    cout << "Enter your option: ";
+    cin >> option;
+  } while (cin.fail() || (option >= 5) || (option <= 0));
+
+  // accept input if changing quantity required
+  if (option != 4)
+  {
+    do
+    {
+      ClearInput();
+      cout << "Enter the quantity: ";
+      cin >> qty;
+    } while (cin.fail());
+  }
+
+  // Adjust the quantity of the book.
+  if (option == 1)
+  {
+    system.books[idx].Quantity += qty;
+  }
+  else if (option == 2)
+  {
+    system.books[idx].Quantity -= qty;
+
+    if (system.books[idx].Quantity < 0)
+    {
+      system.books[idx].Quantity = 0;
+    }
+  }
+  else if (option == 3)
+  {
+    system.books[idx].Quantity = qty;
+  }
+  else if (option == 4)
+  {
+    cin.ignore();
+    cout << "Enter the note: ";
+    getline(cin, system.books[idx].Notes);
+  }
+
+  cout << system.books[idx].Title << " updated." << endl;
+  return;
+}
+
+/**
+ * Add new book Screen Implementation
+ *
+ * @param system
+ */
+void AddNewBook(System &system)
+{
+  // create new book as a new information container
+  book newBook;
+  string input;
+
+  cin.ignore();
+  cout << "Enter the book ISBN: ";
+  getline(cin, newBook.ISBN);
+
+  cout << "Enter the author name: ";
+  getline(cin, newBook.Author);
+
+  cout << "Enter the book title: ";
+  getline(cin, newBook.Title);
+
+  do
+  {
+    if (cin.fail())
+    {
+      ClearInput();
+    }
+    cout << "Enter the books quantity: ";
+    cin >> newBook.Quantity;
+  } while (cin.fail());
+
+  do
+  {
+    if (cin.fail())
+    {
+      ClearInput();
+    }
+    cout << "Enter the book price: $";
+    cin >> newBook.Price;
+  } while (cin.fail());
+
+  cout << "Notes: ";
+  cin.ignore();
+  getline(cin, newBook.Notes);
+  ClearInput();
+
+  // insert the new book into the list of the book
+  system.books.push_back(newBook);
+
+  cout << "You have successfully inserted an entry." << endl;
+  return;
+}
+
+/**
+ * Sort books Screen Implementation
+ *
+ * @param system
+ */
+void SortBooks(System &system)
+{
+  if (system.books.size() == 0)
+  {
+    cout << "The list is empty." << endl;
+    return;
+  }
+
+  int option;
+
+  do
+  {
+    ClearInput();
+    cout << "  1. Sort by Title" << endl;
+    cout << "  2. Sort by Author" << endl;
+    cout << "  3. Sort by Price" << endl;
+    cout << "  4. Sort by Quantity" << endl
+         << endl;
+
+    cout << "Enter your option: ";
+    cin >> option;
+  } while (cin.fail() || (option >= 5) || (option <= 0));
+
+  vector<book> books = system.books;
+
+  // sort the book by comapring the previous book
+  for (int i = 1; i < books.size(); ++i)
+  {
+    book current = books.at(i);
+    int j = i;
+    if (option == 1)
+    {
+      while (j > 0 && (books[j - 1].Title).compare(current.Title) > 0)
+      {
+        books[j] = books[j - 1];
+        j--;
+      }
+    }
+    else if (option == 2)
+    {
+      while (j > 0 && (books[j - 1].Author).compare(current.Author) > 0)
+      {
+        books[j] = books[j - 1];
+        j--;
+      }
+    }
+    else if (option == 3)
+    {
+      while (j > 0 && (books[j - 1].Price < current.Price))
+      {
+        books[j] = books[j - 1];
+        j--;
+      }
+    }
+    else if (option == 4)
+    {
+      while (j > 0 && (books[j - 1].Quantity < current.Quantity))
+      {
+        books[j] = books[j - 1];
+        j--;
+      }
     }
     books[j] = current;
   }
+  system.books = books;
 
-  if (size != 0)
-    cout << "You have successfully sorted the library." << endl;
-  else
-    cout << "Library is empty. Please enter an entry first." << endl;
+  cout << "You have successfully sorted the library." << endl;
+  return;
 }
-// choice 6:
-void choice6(book books[], int &size)
-{
-  if (size == 0)
-    cout << "Array is empty. Read the data first." << endl;
-  else
-  {
-    int isbn;
 
-    cout << "\nEnter the ISBN of the book: ";
+/**
+ * Delete book Screen Implementation
+ *
+ * @param system
+ */
+void DeleteBook(System &system)
+{
+  if (system.books.size() == 0)
+  {
+    cout << "The list is empty." << endl;
+    return;
+  }
+
+  string isbn;
+  int idx = -1;
+  string notes;
+
+  do
+  {
+    if (cin.fail())
+    {
+      ClearInput();
+    }
+    cout << "\nEnter the ISBN of the book or the book number: ";
     cin >> isbn;
 
-    for (int i = 0; i < size; i++)
+    // find the book using isbn
+    for (int i = 0; i < system.books.size(); i++)
     {
-      if (books[i].ISBN == isbn)
+      if (system.books[i].ISBN == isbn)
       {
-        int j = i;
-        while (j < size - 1)
-        {
-          books[j] = books[j + 1];
-          j++;
-        }
-
-        size--;
-        break;
+        idx = i;
       }
     }
 
-    cout << "You have successfully deleted an entry." << endl;
+    // if the book is not existing, check input as book number
+    if (idx == -1)
+    {
+      idx = static_cast<int>(stoi(isbn)) - 1;
+      if (idx >= 0 && (system.books.size() <= idx))
+      {
+        idx = -1;
+      }
+    }
+  } while (cin.fail() || (idx == -1));
+
+  system.books.erase(system.books.begin() + idx);
+  cout << "You have successfully deleted an entry." << endl;
+  return;
+}
+
+/**
+ * Save System Screen Implementation
+ *
+ * @param system
+ */
+void SaveAndQuit(System &system)
+{
+  system.SaveFile();
+  cout << "You have successfully saved all the data into the library." << endl;
+  return;
+}
+
+/**
+ * Truncate the string by given width
+ * 
+ * @param str given string
+ * @param width substring of the length
+ * @return string if the string is longer than the given width, it returns with ellipses.
+ */
+string truncate(string str, int width)
+{
+  if (str.length() > width)
+  {
+    return str.substr(0, width - 3) + "...";
+  }
+  else
+  {
+    return str;
   }
 }
 
-void choice7(book books[], int size)
+/**
+ * Clear Input for cin stream and getline
+ *
+ * @return void
+ */
+void ClearInput()
 {
-  ofstream outFile;
-  outFile.open("finalLibrary.dat"); // record every single data into a final file
-
-  for (int i = 0; i < size; i++)
-  {
-    outFile << "Book Number: " << (i + 1) << endl;
-    outFile << "ISBN: " << books[i].ISBN << endl;
-    outFile << "Author: " << books[i].Author << endl;
-    outFile << "Title: " << books[i].Title << endl;
-    outFile << "Quantity: " << books[i].Quantity << endl;
-    outFile << "Price: $" << books[i].price << endl
-            << endl;
-  }
-
-  if (size != 0)
-    cout << "You have successfully printed all the data into the library." << endl;
-  else
-    cout << "Array is empty. Read the file first." << endl;
-
-  outFile.close();
+  // reference: https://en.cppreference.com/w/cpp/io/basic_istream/ignore
+  cin.clear();
+  cin.ignore(numeric_limits<streamsize>::max(), '\n');
+  return;
 }
