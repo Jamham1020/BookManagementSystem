@@ -1,4 +1,4 @@
 #!/bin/bash
 
-alias build="g++ -pthread -std=c++17 -o main *.cpp; ./main"
+alias build="g++ -Werror -Wall -pthread -std=c++17 -o main *.cpp; ./main"
 
