@@ -11,6 +11,7 @@
  */
 #pragma once
 #include "System.h"
+#include "cartItem.h"
 
 /**
  * Print program information
@@ -85,6 +86,16 @@ void SortBooks(System &system);
  */
 void DeleteBook(System &system);
 
+/**
+ * Checkout Screen
+ *
+ * Select the books and checkout for the customer who want to purchase the books.
+ *
+ * @param system
+ * @return void
+ */
+void CheckoutBooks(System &system);
+
 
 /**
  * Save And Quit Screen
@@ -106,3 +117,14 @@ void SaveAndQuit(System &system);
  * @return void
  */
 void PrintBook(book &book);
+
+/**
+ * Print the current cart detail
+ *
+ * Display the current cart items using system.
+ *
+ * @param carts
+ * @param system
+ * @return void
+ */
+void PrintCart(vector<cartItem> &carts, System &system);
