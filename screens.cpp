@@ -500,6 +500,8 @@ void CheckoutBooks(System &system)
 
     if (option == 1)
     {
+      // Add new book into the cart
+      // Prompt the list of the available options
       ShowBookList(system);
 
       do
@@ -510,6 +512,10 @@ void CheckoutBooks(System &system)
         }
         cout << "Which book do you want to add? (0 for cancel): ";
         cin >> idxSelected;
+
+        // Validate the availability of the book
+        // - Check the selected number does exist
+        // - Check the quantity of the book
         if ((idxSelected > 0) && (idxSelected <= system.books.size()))
         {
           bookIdx = idxSelected - 1;
@@ -571,6 +577,7 @@ void CheckoutBooks(System &system)
         cin >> qtySelected;
       } while (cin.fail() || (qtySelected > book.Quantity) || (qtySelected < 0));
 
+      // Selected book only adds when the quantity is more than 0.
       if (qtySelected > 0)
       {
         cartItem newCartItem{
@@ -582,6 +589,7 @@ void CheckoutBooks(System &system)
     }
     else if (option == 2)
     {
+      // Remove the book from the cart
       // request the number for removing the row from the cart
       cout << "Which book do you want to remove? (0 for cancel): ";
       cin >> idxSelected;
@@ -592,6 +600,9 @@ void CheckoutBooks(System &system)
     }
     else if (option == 3)
     {
+      // Checkout the cart
+      // Print out the receipt and adjust quantity of the inventory based on the cart.
+
       if (carts.size() == 0)
       {
         cout << "The cart is empty. Return to the menu." << endl;
