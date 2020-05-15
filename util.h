@@ -43,3 +43,12 @@ void ClearInput();
  * @return string
  */
 string FindAndReplaceAll(string data, string toSearch, string replaceStr);
+
+/**
+ * Clear screen
+ *
+ * Truncate all buffer on the command line.
+ *
+ * @return void
+ */
+void ClearScreen();
