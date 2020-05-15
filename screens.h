@@ -113,3 +113,13 @@ string truncate(string str, int width);
  * @return void
  */
 void ClearInput();
+
+/**
+ * Print book information
+ * 
+ * Display detail of the given book on the screen.
+ * 
+ * @param book
+ * @return void
+ */
+void PrintBook(book &book);

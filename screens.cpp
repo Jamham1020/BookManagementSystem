@@ -22,8 +22,10 @@ using namespace std;
 /**
  * Program Display
  */
+const char PROGRAM_BORDER = '=';
+const char PROGRAM_SECONDARY_BORDER = '-';
 const string PROGRAM_TITLE = "   Chaffey Book Management System   ";
-const string PROGRAM_TITLE_BORDER = string(PROGRAM_TITLE.size(), '=');
+const string PROGRAM_TITLE_BORDER = string(PROGRAM_TITLE.size(), PROGRAM_BORDER);
 
 /**
  * Table display related constraints
@@ -37,8 +39,14 @@ const int TABLE_WIDTH_QTY = 10;
 const int TABLE_WIDTH_PRICE = 10;
 const int TABLE_WIDTH_NOTES = 20;
 const int TABLE_WIDTH = (TABLE_CELL_SEPARATOR.length() * 8) + TABLE_WIDTH_NO + TABLE_WIDTH_ISBN + TABLE_WIDTH_AUTHOR + TABLE_WIDTH_TITLE + TABLE_WIDTH_QTY + TABLE_WIDTH_PRICE + TABLE_WIDTH_NOTES;
-const string TABLE_ROW_SEPARTOR = string(TABLE_WIDTH, '-');
+const string TABLE_ROW_SEPARTOR = string(TABLE_WIDTH, PROGRAM_SECONDARY_BORDER);
 
+/**
+ * Book information consts
+ */
+const int BOOK_WIDTH_TITLE = 15;
+const int BOOK_WIDTH_DATA = 40;
+const int BOOK_WIDTH = BOOK_WIDTH_TITLE + BOOK_WIDTH_DATA;
 
 /**
  * Print Program Info Implementation
@@ -73,7 +81,7 @@ void LoadInventory(System &system)
     // if the input is empty, cancel the load file and back to the menu.
     if (input == "")
     {
-      cout << "Cancel the load. Back to the menu." << endl
+      cout << "Cancel the loading. Back to the menu." << endl
            << endl;
       break;
     }
@@ -192,18 +200,32 @@ void UpdateBook(System &system)
     }
   } while (cin.fail() || (idx == -1));
 
+  PrintBook(system.books[idx]);
+
   do
   {
     ClearInput();
-    cout << "  1. Increment Quantity" << endl;
-    cout << "  2. Decrement Quantity" << endl;
-    cout << "  3. Add New Quantity" << endl;
-    cout << "  4. Edit Notes" << endl
+    cout << endl
+         << "Select options" << endl;
+    cout << "  1. Increment Quantity" << endl
+         << "  2. Decrement Quantity" << endl
+         << "  3. Add New Quantity" << endl
+         << "  4. Edit Notes" << endl
+         << endl
+         << "  0. Back to the menu" << endl
          << endl;
 
     cout << "Enter your option: ";
     cin >> option;
-  } while (cin.fail() || (option >= 5) || (option <= 0));
+  } while (cin.fail() || (option >= 5) || (option < 0));
+
+  // back to the main menu by finishing this function
+  if (option == 0)
+  {
+    cout << "Cancel the update. Back to the menu." << endl
+         << endl;
+    return;
+  }
 
   // accept input if changing quantity required
   if (option != 4)
@@ -465,5 +487,40 @@ void ClearInput()
   // reference: https://en.cppreference.com/w/cpp/io/basic_istream/ignore
   cin.clear();
   cin.ignore(numeric_limits<streamsize>::max(), '\n');
+  return;
+}
+
+/**
+ * Print the book detail
+ *
+ * @param book
+ * @return void
+ */
+void PrintBook(book &book)
+{
+  cout << endl
+       << left << setw(BOOK_WIDTH) << setfill(PROGRAM_BORDER) << "Book Selected " << endl
+       << setfill(' ')
+
+       << setw(BOOK_WIDTH_TITLE) << "ISBN:"
+       << setw(BOOK_WIDTH_DATA) << truncate(book.ISBN, BOOK_WIDTH_DATA) << endl
+
+       << setw(BOOK_WIDTH_TITLE) << "Author:"
+       << setw(BOOK_WIDTH_DATA) << truncate(book.Author, BOOK_WIDTH_DATA) << endl
+
+       << setw(BOOK_WIDTH_TITLE) << "Title:"
+       << setw(BOOK_WIDTH_DATA) << truncate(book.Title, BOOK_WIDTH_DATA) << endl
+
+       << setw(BOOK_WIDTH_TITLE) << "Quantity:"
+       << setw(BOOK_WIDTH_DATA) << book.Quantity << endl
+
+       << setw(BOOK_WIDTH_TITLE) << "Price ($):"
+       << setw(BOOK_WIDTH_DATA) << book.Price << endl
+
+       << setfill(PROGRAM_SECONDARY_BORDER) << setw(BOOK_WIDTH) << "Notes " << endl
+       << setfill(' ')
+       << book.Notes << endl
+       << string(BOOK_WIDTH, PROGRAM_BORDER) << endl
+       << endl;
   return;
 }
