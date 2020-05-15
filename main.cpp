@@ -17,6 +17,7 @@
 
 #include "System.h"
 #include "screens.h"
+#include "util.h"
 
 using namespace std;
 
