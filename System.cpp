@@ -70,10 +70,10 @@ bool System::LoadFile(string filepath)
     filepath = currentFilePath;
   }
   ifstream inFile(filepath);
+  vector<book> newBooks;
+  bool validated = false;
   string row;
   string cell;
-  vector<book> newBooks;
-  bool validated;
 
   if (inFile.is_open())
   {
@@ -82,7 +82,14 @@ bool System::LoadFile(string filepath)
       if (validated == false)
       {
         getline(inFile, row);
-        if (row != FILE_HEADER)
+
+        // sometimes it loads slowly because it is a stream
+        // so it skips when it is a empty row
+        if (row == "")
+        {
+          continue;
+        }
+        else if (row != FILE_HEADER)
         {
           cout << "FILE FORMAT INVALID" << endl;
           break;
