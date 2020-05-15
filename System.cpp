@@ -121,6 +121,7 @@ bool System::LoadFile(string filepath)
         continue;
       }
 
+      // load the book as a struct and add it to the new book list
       quantity = static_cast<int>(stoi(bookData.at(3)));
       price = static_cast<double>(stod(bookData.at(4)));
 
@@ -148,6 +149,7 @@ bool System::LoadFile(string filepath)
     return false;
   }
 
+  // Set the new book list into system and clean up
   books = newBooks;
   currentFilePath = filepath;
   cout << books.size() << " books loaded from " << filepath << "." << endl;
