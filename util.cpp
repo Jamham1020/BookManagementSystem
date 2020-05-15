@@ -12,6 +12,10 @@
 #include <iostream>
 #include <string>
 #include <thread>
+#ifdef _WIN32
+#include <cstdlib> // for windows cmd clean up
+#endif
+
 #include "util.h"
 
 using namespace std;
@@ -72,4 +76,23 @@ string FindAndReplaceAll(string data, string toSearch, string replaceStr)
   }
 
   return data;
+}
+
+/**
+ * Clear screen
+ *
+ * Truncate all buffer on the command line.
+ *
+ * @return void
+ */
+void ClearScreen()
+{
+#ifdef _WIN32
+  // Windows need a system call for cleaning command line.
+  system("CLS");
+#else
+  // Other O/S considered the program runs on term which XTERM supports.
+  cout << "\033c";
+#endif
+  return;
 }
