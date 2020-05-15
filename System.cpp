@@ -116,7 +116,8 @@ bool System::LoadFile(string filepath)
       }
 
       // consider the row as corrupted
-      if (bookData.size() < FIELDS_COUNT) {
+      if (bookData.size() < FIELDS_COUNT)
+      {
         continue;
       }
 
