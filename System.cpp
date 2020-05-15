@@ -21,8 +21,12 @@
 using namespace std;
 
 const char SEPARATOR = '|';
+const char ESCAPE_SEPARTOR = '/';
 const int FIELDS_COUNT = 6;
 const string FILE_HEADER = "ISBN|Author|Title|Quantity|Price|Notes";
+
+const string SEPARTOR_STR = string(1, SEPARATOR);
+const string ESCAPE_SEPARTOR_STR = string(1, ESCAPE_SEPARTOR);
 
 /**
  * Save File implementation
@@ -44,13 +48,14 @@ bool System::SaveFile(string filepath)
   {
     book &b = books[i];
 
+    // Sanitize user input for preventing malformed saved file.
     outFile
-        << b.ISBN << SEPARATOR
-        << b.Author << SEPARATOR
-        << b.Title << SEPARATOR
+        << FindAndReplaceAll(b.ISBN, SEPARTOR_STR, ESCAPE_SEPARTOR_STR) << SEPARATOR
+        << FindAndReplaceAll(b.Author, SEPARTOR_STR, ESCAPE_SEPARTOR_STR) << SEPARATOR
+        << FindAndReplaceAll(b.Title, SEPARTOR_STR, ESCAPE_SEPARTOR_STR) << SEPARATOR
         << b.Quantity << SEPARATOR
         << b.Price << SEPARATOR
-        << b.Notes
+        << FindAndReplaceAll(b.Notes, SEPARTOR_STR, ESCAPE_SEPARTOR_STR)
         << endl;
   }
 
