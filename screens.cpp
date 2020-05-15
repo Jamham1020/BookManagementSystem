@@ -15,10 +15,16 @@
 #include <thread>
 #include <iomanip>
 #include "book.h"
+#include "cartItem.h"
 #include "util.h"
 #include "screens.h"
 
 using namespace std;
+
+/**
+ * Calculation related
+ */
+const double TAX_RATE = 0.075;
 
 /**
  * Program Display
@@ -32,15 +38,18 @@ const string PROGRAM_TITLE_BORDER = string(PROGRAM_TITLE.size(), PROGRAM_BORDER)
  * Table display related constraints
  */
 const string TABLE_CELL_SEPARATOR = " | ";
-const int TABLE_WIDTH_NO = 3;
+const int TABLE_WIDTH_NO = 4;
 const int TABLE_WIDTH_ISBN = 15;
 const int TABLE_WIDTH_AUTHOR = 16;
 const int TABLE_WIDTH_TITLE = 40;
-const int TABLE_WIDTH_QTY = 10;
+const int TABLE_WIDTH_QTY = 5;
 const int TABLE_WIDTH_PRICE = 10;
 const int TABLE_WIDTH_NOTES = 20;
 const int TABLE_WIDTH = (TABLE_CELL_SEPARATOR.length() * 8) + TABLE_WIDTH_NO + TABLE_WIDTH_ISBN + TABLE_WIDTH_AUTHOR + TABLE_WIDTH_TITLE + TABLE_WIDTH_QTY + TABLE_WIDTH_PRICE + TABLE_WIDTH_NOTES;
 const string TABLE_ROW_SEPARTOR = string(TABLE_WIDTH, PROGRAM_SECONDARY_BORDER);
+
+const int CHECKOUT_TABLE_WIDTH = (TABLE_CELL_SEPARATOR.length() * 8) + TABLE_WIDTH_NO + TABLE_WIDTH_NO + TABLE_WIDTH_ISBN + TABLE_WIDTH_TITLE + TABLE_WIDTH_QTY + TABLE_WIDTH_PRICE + TABLE_WIDTH_PRICE;
+const string CHECKOUT_TABLE_ROW_SEPARTOR = string(CHECKOUT_TABLE_WIDTH, PROGRAM_SECONDARY_BORDER);
 
 /**
  * Book information consts
@@ -48,6 +57,14 @@ const string TABLE_ROW_SEPARTOR = string(TABLE_WIDTH, PROGRAM_SECONDARY_BORDER);
 const int BOOK_WIDTH_TITLE = 15;
 const int BOOK_WIDTH_DATA = 40;
 const int BOOK_WIDTH = BOOK_WIDTH_TITLE + BOOK_WIDTH_DATA;
+
+/**
+ * Recipt Information consts
+ */
+const int RECEIPT_WIDTH_TITLE = 15;
+const int RECEIPT_WIDTH_DATA = 15;
+const int RECEIPT_WIDTH = RECEIPT_WIDTH_TITLE + RECEIPT_WIDTH_DATA;
+const string RECEIPT_SEPARTOR = string(RECEIPT_WIDTH, PROGRAM_SECONDARY_BORDER);
 
 /**
  * Print Program Info Implementation
@@ -451,6 +468,158 @@ void DeleteBook(System &system)
 }
 
 /**
+ * Checkout Books Screen Implementation
+ *
+ * @param system
+ */
+void CheckoutBooks(System &system)
+{
+  int option, bookIdx;
+  int idxSelected, qtySelected;
+
+  // 0: book index, 1: book quantity
+  vector<cartItem> carts;
+
+  do
+  {
+    ClearScreen();
+    PrintCart(carts, system);
+
+    if (cin.fail())
+    {
+      ClearInput();
+    }
+    cout << "Select the option" << endl
+         << "  1: Add new book in the cart" << endl
+         << "  2: Remove the book in the cart" << endl
+         << "  3: Checkout the cart" << endl
+         << "  0: Back to the menu" << endl
+         << endl;
+    cout << "Which action do you want to do? ";
+    cin >> option;
+
+    if (option == 1)
+    {
+      ShowBookList(system);
+
+      do
+      {
+        if (cin.fail())
+        {
+          ClearInput();
+        }
+        cout << "Which book do you want to add? (0 for cancel): ";
+        cin >> idxSelected;
+        if ((idxSelected > 0) && (idxSelected <= system.books.size()))
+        {
+          bookIdx = idxSelected - 1;
+          if (system.books[bookIdx].Quantity > 0)
+          {
+            break;
+          }
+          else
+          {
+            cout << "Selected one doesn't have a proper quantity." << endl;
+            bookIdx = -1;
+          }
+        }
+        else if (idxSelected == 0)
+        {
+          break;
+        }
+        else
+        {
+          cout << "The selected number is incorrect." << endl;
+          bookIdx = -1;
+        }
+      } while (cin.fail() || bookIdx == -1);
+
+      if (idxSelected == 0)
+      {
+        continue;
+      }
+      // If the book is already picked, remove from the cart first.
+      int needToRemove = -1;
+
+      for (int i = 0; i < carts.size(); i++)
+      {
+        if (carts[i].BookIdx == bookIdx)
+        {
+          needToRemove = i;
+        }
+      }
+
+      if (needToRemove != -1)
+      {
+        carts.erase(carts.begin() + needToRemove);
+      }
+
+      book &book = system.books[bookIdx];
+
+      if (book.Quantity == 0)
+      {
+        continue;
+      }
+
+      do
+      {
+        if (cin.fail())
+        {
+          ClearInput();
+        }
+        cout << "How many book do you want (0~" << book.Quantity << "): ";
+        cin >> qtySelected;
+      } while (cin.fail() || (qtySelected > book.Quantity) || (qtySelected < 0));
+
+      if (qtySelected > 0)
+      {
+        cartItem newCartItem{
+            .BookIdx = bookIdx,
+            .Quantity = qtySelected,
+        };
+        carts.push_back(newCartItem);
+      }
+    }
+    else if (option == 2)
+    {
+      // request the number for removing the row from the cart
+      cout << "Which book do you want to remove? (0 for cancel): ";
+      cin >> idxSelected;
+      if ((idxSelected > 0) && (idxSelected <= carts.size()))
+      {
+        carts.erase(carts.begin() + idxSelected - 1);
+      }
+    }
+    else if (option == 3)
+    {
+      if (carts.size() == 0)
+      {
+        cout << "The cart is empty. Return to the menu." << endl;
+        break;
+      }
+
+      // Update cart information into the inventory
+      for (int i = 0; i < carts.size(); ++i)
+      {
+        system.books.at(carts[i].BookIdx).Quantity -= carts[i].Quantity;
+      }
+
+      ClearScreen();
+      cout << endl
+           << endl << " * Thank you for purchasing! * " << endl
+           << endl;
+
+      PrintCart(carts, system);
+
+      cout << endl << "The inventory of the books updated based on the checkout." << endl;
+      break;
+    }
+  } while (cin.fail() || (option != 0));
+
+  return;
+}
+
+/**
  * Save System Screen Implementation
  *
  * @param system
@@ -495,4 +664,76 @@ void PrintBook(book &book)
        << string(BOOK_WIDTH, PROGRAM_BORDER) << endl
        << endl;
   return;
+}
+
+/**
+ * Print the current cart detail
+ *
+ * @param carts
+ * @param system
+ * @return void
+ */
+void PrintCart(vector<cartItem> &carts, System &system)
+{
+  double subTotal = 0;
+  double taxTotal = 0;
+  int quantity = 0;
+
+  cout << left << setw(CHECKOUT_TABLE_WIDTH) << setfill(PROGRAM_BORDER) << "Checkout " << endl
+       << setfill(' ');
+  if (carts.size() == 0)
+  {
+    cout << endl
+         << "  * No entries in the cart *" << endl
+         << endl;
+  }
+  else
+  {
+    cout << left << TABLE_CELL_SEPARATOR
+         << setw(TABLE_WIDTH_NO) << "No." << TABLE_CELL_SEPARATOR
+         << setw(TABLE_WIDTH_NO) << "BNo." << TABLE_CELL_SEPARATOR
+         << setw(TABLE_WIDTH_ISBN) << "ISBN" << TABLE_CELL_SEPARATOR
+         << setw(TABLE_WIDTH_TITLE) << "Title" << TABLE_CELL_SEPARATOR
+         << right << setw(TABLE_WIDTH_QTY) << "Qty" << TABLE_CELL_SEPARATOR
+         << setw(TABLE_WIDTH_PRICE) << "Price" << TABLE_CELL_SEPARATOR
+         << setw(TABLE_WIDTH_PRICE) << "Subtotal" << TABLE_CELL_SEPARATOR
+         << endl;
+    cout << CHECKOUT_TABLE_ROW_SEPARTOR << endl;
+  }
+  for (int i = 0; i < carts.size(); ++i)
+  {
+    book &book = system.books.at(carts[i].BookIdx);
+    double lineTotal = carts[i].Quantity * book.Price;
+    subTotal += lineTotal;
+    quantity += carts[i].Quantity;
+
+    cout << left << TABLE_CELL_SEPARATOR
+         << setw(TABLE_WIDTH_NO) << (i + 1) << TABLE_CELL_SEPARATOR
+         << setw(TABLE_WIDTH_NO) << (carts[i].BookIdx + 1) << TABLE_CELL_SEPARATOR
+         << setw(TABLE_WIDTH_ISBN) << truncate(book.ISBN, TABLE_WIDTH_ISBN) << TABLE_CELL_SEPARATOR
+         << setw(TABLE_WIDTH_TITLE) << truncate(book.Title, TABLE_WIDTH_TITLE) << TABLE_CELL_SEPARATOR
+         << right << setw(TABLE_WIDTH_QTY) << carts[i].Quantity << TABLE_CELL_SEPARATOR
+         << setw(TABLE_WIDTH_PRICE) << book.Price << TABLE_CELL_SEPARATOR
+         << setw(TABLE_WIDTH_PRICE) << lineTotal << TABLE_CELL_SEPARATOR
+         << endl;
+  }
+
+  taxTotal = subTotal * TAX_RATE;
+
+  cout << left << setw(CHECKOUT_TABLE_WIDTH)
+       << setfill(PROGRAM_BORDER)
+       << ("Total " + to_string(carts.size()) + " item(s) / " + to_string(quantity) + " book(s) ")
+       << endl
+       << setfill(' ') << endl
+       << RECEIPT_SEPARTOR << endl
+       << setprecision(2) << fixed
+       << left << setw(RECEIPT_WIDTH_TITLE) << "Subtotal ($): "
+       << setw(RECEIPT_WIDTH_DATA) << right << subTotal << endl
+       << left << setw(RECEIPT_WIDTH_TITLE) << "Tax ($): "
+       << setw(RECEIPT_WIDTH_DATA) << right << taxTotal << endl
+       << RECEIPT_SEPARTOR << endl
+       << left << setw(RECEIPT_WIDTH_TITLE) << "Total ($): "
+       << setw(RECEIPT_WIDTH_DATA) << right << (subTotal + taxTotal) << endl
+       << RECEIPT_SEPARTOR << endl
+       << left << setfill(' ') << endl;
 }

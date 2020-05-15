@@ -27,6 +27,7 @@ int main()
   int choice;
 
   // Print program information as a title of the program
+  ClearScreen();
   PrintProgramInfo();
 
   // if the program loads the default file
@@ -41,8 +42,9 @@ int main()
     cout << "  4: Add an entry" << endl;
     cout << "  5: Sort inventory" << endl;
     cout << "  6: Delete an entry" << endl;
-    cout << "  7: Write inventory to file and exit" << endl;
-    //cout << "8: Notes" << endl;
+    cout << "  7: Checkout" << endl;
+
+    cout << endl << "  0: Write inventory to file and exit" << endl;
 
     cout << endl
          << "Enter your choice: ";
@@ -54,6 +56,11 @@ int main()
     }
 
     cin >> choice;
+
+    // restart the loop if the input is invalid
+    if (cin.fail()) {
+      continue;
+    }
 
     switch (choice)
     {
@@ -76,6 +83,9 @@ int main()
       DeleteBook(system);
       break;
     case 7:
+      CheckoutBooks(system);
+      break;
+    case 0:
       SaveAndQuit(system);
       cout << "Thank you and have a nice day!" << endl;
       break;
@@ -83,7 +93,7 @@ int main()
       cout << endl << "Invalid choice!" << endl;
     }
     cout << endl;
-  } while (choice != 7);
+  } while (cin.fail() || choice != 0);
 
 #ifdef _WIN32
   // For Windows
