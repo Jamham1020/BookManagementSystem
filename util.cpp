@@ -40,6 +40,20 @@ string truncate(string str, int width)
 }
 
 /**
+ * Check the string is a numeric value
+ * 
+ * @param &s given string
+ * @return bool
+ */
+bool is_number(const string &s)
+{
+  string::const_iterator it = s.begin();
+  while (it != s.end() && isdigit(*it))
+    ++it;
+  return !s.empty() && it == s.end();
+}
+
+/**
  * Clear Input for cin stream and getline
  *
  * @return void
