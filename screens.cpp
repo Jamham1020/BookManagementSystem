@@ -330,9 +330,8 @@ void AddNewBook(System &system)
   } while (cin.fail());
 
   cout << "Notes: ";
-  cin.ignore();
-  getline(cin, newBook.Notes);
   ClearInput();
+  getline(cin, newBook.Notes);
 
   // insert the new book into the list of the book
   system.books.push_back(newBook);
