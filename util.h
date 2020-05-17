@@ -26,6 +26,14 @@ using namespace std;
 string truncate(string str, int width);
 
 /**
+ * Check the string is a numeric value
+ * 
+ * @param &s given string
+ * @return bool
+ */
+bool is_number(const string &s);
+
+/**
  * Clear Input for cin stream and getline
  *
  * @return void
