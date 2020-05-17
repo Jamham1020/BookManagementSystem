@@ -210,7 +210,7 @@ void UpdateBook(System &system)
     }
 
     // if the book is not existing, check input as book number
-    if (idx == -1)
+    if ((idx == -1) && (is_number(isbn) == true))
     {
       idx = static_cast<int>(stoi(isbn)) - 1;
       if (idx >= 0 && (system.books.size() <= idx))
@@ -452,7 +452,7 @@ void DeleteBook(System &system)
     }
 
     // if the book is not existing, check input as book number
-    if (idx == -1)
+    if ((idx == -1) && (is_number(isbn) == true))
     {
       idx = static_cast<int>(stoi(isbn)) - 1;
       if (idx >= 0 && (system.books.size() <= idx))
@@ -476,6 +476,7 @@ void CheckoutBooks(System &system)
 {
   int option, bookIdx;
   int idxSelected, qtySelected;
+  string input;
 
   // 0: book index, 1: book quantity
   vector<cartItem> carts;
@@ -510,8 +511,24 @@ void CheckoutBooks(System &system)
         {
           ClearInput();
         }
+        idxSelected = -1;
         cout << "Which book do you want to add? (0 for cancel): ";
-        cin >> idxSelected;
+        cin >> input;
+
+        // find the book using isbn
+        for (int i = 0; i < system.books.size(); i++)
+        {
+          if (system.books[i].ISBN == input)
+          {
+            idxSelected = i + 1;
+          }
+        }
+
+        // if the isbn doesn't exist in the system, convert to the number
+        if ((idxSelected == -1) && (is_number(input) == true))
+        {
+          idxSelected = static_cast<int>(stoi(input));
+        }
 
         // Validate the availability of the book
         // - Check the selected number does exist
@@ -591,8 +608,25 @@ void CheckoutBooks(System &system)
     {
       // Remove the book from the cart
       // request the number for removing the row from the cart
+      idxSelected = -1;
       cout << "Which book do you want to remove? (0 for cancel): ";
-      cin >> idxSelected;
+      cin >> input;
+
+      // find the book using isbn
+      for (int i = 0; i < carts.size(); i++)
+      {
+        if (system.books[carts[i].BookIdx].ISBN == input)
+        {
+          idxSelected = i + 1;
+        }
+      }
+
+      // if the isbn doesn't exist in the system, convert to the number
+      if ((idxSelected == -1) && (is_number(input) == true))
+      {
+        idxSelected = static_cast<int>(stoi(input));
+      }
+
       if ((idxSelected > 0) && (idxSelected <= carts.size()))
       {
         carts.erase(carts.begin() + idxSelected - 1);
