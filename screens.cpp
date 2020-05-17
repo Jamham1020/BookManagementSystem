@@ -650,12 +650,14 @@ void CheckoutBooks(System &system)
 
       ClearScreen();
       cout << endl
-           << endl << " * Thank you for purchasing! * " << endl
+           << endl
+           << " * Thank you for purchasing! * " << endl
            << endl;
 
       PrintCart(carts, system);
 
-      cout << endl << "The inventory of the books updated based on the checkout." << endl;
+      cout << endl
+           << "The inventory of the books updated based on the checkout." << endl;
       break;
     }
   } while (cin.fail() || (option != 0));
