@@ -1,11 +1,9 @@
 Book Management System
 ======================
 
-This is a COMPSCI-1 Final Group 5 Project by Janet Pham, Yong Gyun Kim, Erika Meza, Marwa Naghmouchi, Vernon Neilly.
+It is a COMPSCI-1 Final Group 5 Project by Janet Pham, Yong Gyun Kim, Erika Meza, Marwa Naghmouchi, Vernon Neilly.
 
-## How to test
-
-Click the run ‎▶ button on the top of the page.
+Please check the report for the detail.
 
 ## Troubleshooting
 
