@@ -18,6 +18,7 @@
 #include "cartItem.h"
 #include "util.h"
 #include "screens.h"
+#include "account.h"
 
 using namespace std;
 
@@ -25,6 +26,7 @@ using namespace std;
  * Calculation related
  */
 const double TAX_RATE = 0.075;
+Account account;
 
 /**
  * Program Display
@@ -641,6 +643,14 @@ void CheckoutBooks(System &system)
         cout << "The cart is empty. Return to the menu." << endl;
         break;
       }
+      double finalTotal = GetTotal(carts, system);
+      if(account.getBalance() < finalTotal){
+        cout << endl << endl;
+        cout << "You do not have enough money to complete checkout." << endl;
+        cout << "You still need $" << (finalTotal - account.getBalance()) << endl;
+        cout << "Return to the menu." << endl;
+        break;
+      }
 
       // Update cart information into the inventory
       for (int i = 0; i < carts.size(); ++i)
@@ -710,6 +720,29 @@ void PrintBook(book &book)
        << string(BOOK_WIDTH, PROGRAM_BORDER) << endl
        << endl;
   return;
+}
+
+/**
+ * Return the current cart total
+ *
+ * @param carts
+ * @param system
+ * @return double
+ */
+double GetTotal(vector<cartItem> &carts, System &system){
+  double subTotal = 0;
+  double taxTotal = 0;
+  if (carts.size() > 0)
+  {
+    for (int i = 0; i < carts.size(); ++i)
+    {
+      book &book = system.books.at(carts[i].BookIdx);
+      double lineTotal = carts[i].Quantity * book.Price;
+      subTotal += lineTotal;
+    }
+    taxTotal = subTotal * TAX_RATE;
+    return (subTotal + taxTotal);
+  }
 }
 
 /**

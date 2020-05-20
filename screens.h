@@ -114,9 +114,18 @@ void SaveAndQuit(System &system);
  * Display detail of the given book on the screen.
  * 
  * @param book
- * @return void
+ * @return double
  */
 void PrintBook(book &book);
+
+/**
+ * Return the current cart total
+ *
+ * @param carts
+ * @param system
+ * @return void
+ */
+double GetTotal(vector<cartItem> &carts, System &system);
 
 /**
  * Print the current cart detail
